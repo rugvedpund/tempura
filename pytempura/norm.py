@@ -10,8 +10,8 @@ est_list = ['TT','TE','EE','EB','TB','MV','MVPOL','SRC'] #,'MASK','TAU','ROT']
 
 
 def get_norms(estimators, response_cls, total_cls, lmin, lmax, lmax_tt=None,
-              k_ellmax=None, include_bb_mv=False, no_corr=True, exclude_eb_tb_in_mv=False,
-              profile=None):
+              k_ellmax=None, include_bb_mv=False, no_corr=True, iter_eb=False,
+              iter_eb_num=5, iter_eb_conv=1e-3, profile=None, do_only_tt_eb=False):
     """
     Get norms for estimators such that A_est = N_est. In the case of lensing,
     this corresponds to the normalizations of the lensing potential.
@@ -62,7 +62,10 @@ def get_norms(estimators, response_cls, total_cls, lmin, lmax, lmax_tt=None,
         r_ee = np.asarray(norm_lens.qee(k_ellmax,lmin,lmax,ucl['EE'],tcl['EE'],gtype= ''))
         if ('EE' in ests): res[_gk('EE')] = r_ee
     if ('EB' in ests) or ('MVPOL' in ests) or (('MV' in ests) and no_corr):
-        r_eb = np.asarray(norm_lens.qeb(k_ellmax,lmin,lmax,ucl['EE'],tcl['EE'],tcl['BB'],gtype= ''))
+        if iter_eb:
+            r_eb = np.asarray(norm_lens.qeb_iter(k_ellmax,lmax,lmin,lmax,lmin,lmax,ucl['EE'],tcl['EE'],tcl['BB'],tcl['kk'],iter=iter_eb_num,conv=iter_eb_conv))        
+        else:
+            r_eb = np.asarray(norm_lens.qeb(k_ellmax,lmin,lmax,ucl['EE'],tcl['EE'],tcl['BB'],gtype= ''))
         if ('EB' in ests): res[_gk('EB')] = r_eb
     if ('TE' in ests)  or (('MV' in ests) and no_corr):
         r_te = np.asarray(norm_lens.qte(k_ellmax,lmin,lmax,ucl['TE'],tcl['TT'],tcl['EE'],gtype= ''))
@@ -79,9 +82,9 @@ def get_norms(estimators, response_cls, total_cls, lmin, lmax, lmax_tt=None,
             # Take 1/N coadd of EE and EB
             # gradient is non-zero for ell>=1
             # curl is non-zero for ell>=2
-            if exclude_eb_tb_in_mv:
-                r_mv[0,1:] = 1./ sum([1./x[0,1:] for x in [r_tt,r_te,r_ee]])
-                r_mv[1,2:] = 1./ sum([1./x[1,2:] for x in [r_tt,r_te,r_ee]])
+            if do_only_tt_eb:
+                r_mv[0,1:] = 1./ sum([1./x[0,1:] for x in [r_tt,r_eb]])
+                r_mv[1,2:] = 1./ sum([1./x[1,2:] for x in [r_tt,r_eb]])
                 res[_gk('MV')] = r_mv
             else:
                 r_mv[0,1:] = 1./ sum([1./x[0,1:] for x in [r_tt,r_te,r_ee,r_eb,r_tb]])

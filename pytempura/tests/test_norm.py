@@ -65,5 +65,5 @@ def test_norm():
     plt.legend()
     plt.savefig('test.png')
 
-
+if __name__=='__main__': test_norm()
 
