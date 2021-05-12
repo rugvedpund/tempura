@@ -817,13 +817,14 @@ subroutine qmv(lmax,QDO,Al,Il,MV,Nl,N)
 end subroutine qmv
 
 
-subroutine qall(QDO,lmax,rlmin,rlmax,fC,OC,Ag,Ac,Nlg,Nlc,gtype,N)
+subroutine qall(QDO,lmax,rlmin,rlmax,rlmaxtt,fC,OC,Ag,Ac,Nlg,Nlc,gtype,N)
 !*  Compute MV estimator normalization. Currently BB is ignored. 
 !*
 !*  Args:
 !*    :QDO[6] (bool): Specifying which estimators to be combined for the minimum variance estimator, with size (6). The oder is TT, TE, EE, TB, EB and BB. 
 !*    :lmax (int):    Maximum multipole of the output power spectra
 !*    :rlmin/rlmax (int)   : Minimum/Maximum multipole of CMB for reconstruction
+!*    :rlmaxtt (int):    Maximum multipole for primary CMB T for reconstruction. Use case: CMB experiment with lmax_temperature=3000, but lmax_pol=5000
 !*    :fC/OC [l] (double): Theory/Observed CMB angular power spectra (TT, EE, BB, TE), with bounds (0:rlmax) 
 !*
 !*  Args(optional):
@@ -839,7 +840,7 @@ subroutine qall(QDO,lmax,rlmin,rlmax,fC,OC,Ag,Ac,Nlg,Nlc,gtype,N)
   !I/O
   integer :: N ! this argument is removed by f2py since it appears in the size of an input array argument
   logical, intent(in), dimension(6) :: QDO
-  integer, intent(in) :: rlmin, rlmax, lmax
+  integer, intent(in) :: rlmin, rlmax, lmax, rlmaxtt
   double precision, intent(in), dimension(4,0:N) :: fC, OC
   double precision, intent(out), dimension(6,0:lmax) :: Ag, Ac, Nlg, Nlc
   !optional
@@ -858,17 +859,17 @@ subroutine qall(QDO,lmax,rlmin,rlmax,fC,OC,Ag,Ac,Nlg,Nlc,gtype,N)
   Ac  = 0d0
   Nlg = 0d0
   Nlc = 0d0
-  if (QDO(1))  call qtt(lmax,rlmin,rlmax,fC(TT,:),OC(TT,:),Ag(1,:),Ac(1,:),gtype=gt,N=N)
-  if (QDO(2))  call qte(lmax,rlmin,rlmax,fC(TE,:),OC(TT,:),OC(EE,:),Ag(2,:),Ac(2,:),gtype=gt,N=N)
+  if (QDO(1))  call qtt(lmax,rlmin,rlmaxtt,fC(TT,:),OC(TT,:),Ag(1,:),Ac(1,:),gtype=gt,N=N)
+  if (QDO(2))  call qte(lmax,rlmin,rlmaxtt,fC(TE,:),OC(TT,:),OC(EE,:),Ag(2,:),Ac(2,:),gtype=gt,N=N)
   if (QDO(3))  call qee(lmax,rlmin,rlmax,fC(EE,:),OC(EE,:),Ag(3,:),Ac(3,:),gtype=gt,N=N)
-  if (QDO(4))  call qtb(lmax,rlmin,rlmax,fC(TE,:),OC(TT,:),OC(BB,:),Ag(4,:),Ac(4,:),gtype=gt,N=N)
+  if (QDO(4))  call qtb(lmax,rlmin,rlmaxtt,fC(TE,:),OC(TT,:),OC(BB,:),Ag(4,:),Ac(4,:),gtype=gt,N=N)
   if (QDO(5))  call qeb(lmax,rlmin,rlmax,fC(EE,:),OC(EE,:),OC(BB,:),Ag(5,:),Ac(5,:),gtype=gt,N=N)
 
   allocate(Ilg(4,0:lmax),Ilc(4,0:lmax))
-  if (QDO(1).and.QDO(2))  call qttte(lmax,rlmin,rlmax,fC(TT,:),fC(TE,:),OC(TT,:),OC(EE,:),OC(TE,:),Ilg(1,:),Ilc(1,:),gtype=gt,N=N)
-  if (QDO(1).and.QDO(3))  call qttee(lmax,rlmin,rlmax,fC(TT,:),fC(EE,:),OC(TT,:),OC(EE,:),OC(TE,:),Ilg(2,:),Ilc(2,:),gtype=gt,N=N)
-  if (QDO(2).and.QDO(3))  call qteee(lmax,rlmin,rlmax,fC(EE,:),fC(TE,:),OC(TT,:),OC(EE,:),OC(TE,:),Ilg(3,:),Ilc(3,:),gtype=gt,N=N)
-  if (QDO(4).and.QDO(5))  call qtbeb(lmax,rlmin,rlmax,fC(EE,:),fC(BB,:),fC(TE,:),OC(TT,:),OC(EE,:),OC(BB,:),OC(TE,:),Ilg(4,:) &
+  if (QDO(1).and.QDO(2))  call qttte(lmax,rlmin,rlmaxtt,fC(TT,:),fC(TE,:),OC(TT,:),OC(EE,:),OC(TE,:),Ilg(1,:),Ilc(1,:),gtype=gt,N=N)
+  if (QDO(1).and.QDO(3))  call qttee(lmax,rlmin,rlmaxtt,fC(TT,:),fC(EE,:),OC(TT,:),OC(EE,:),OC(TE,:),Ilg(2,:),Ilc(2,:),gtype=gt,N=N)
+  if (QDO(2).and.QDO(3))  call qteee(lmax,rlmin,rlmaxtt,fC(EE,:),fC(TE,:),OC(TT,:),OC(EE,:),OC(TE,:),Ilg(3,:),Ilc(3,:),gtype=gt,N=N)
+  if (QDO(4).and.QDO(5))  call qtbeb(lmax,rlmin,rlmaxtt,fC(EE,:),fC(BB,:),fC(TE,:),OC(TT,:),OC(EE,:),OC(BB,:),OC(TE,:),Ilg(4,:) &
        ,Ilc(4,:),gtype=gt,N=N)
   call qmv(lmax,QDO,Ag(1:5,0:lmax),Ilg,Ag(6,0:lmax),Nlg,N)
   call qmv(lmax,QDO,Ac(1:5,0:lmax),Ilc,Ac(6,0:lmax),Nlc,N)

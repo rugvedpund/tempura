@@ -255,7 +255,7 @@ def qmv(lmax,QDO,Al,Il):
   """
   return _libtempura.norm_lens.qmv(lmax,QDO,Al,Il)
 
-def qall(QDO,lmax,rlmin,rlmax,fC,OC,gtype= ''):
+def qall(QDO,lmax,rlmin,rlmax,fC,OC,rlmaxtt=None,gtype= ''):
   """
   Compute MV estimator normalization. Currently BB is ignored. 
 
@@ -277,7 +277,8 @@ def qall(QDO,lmax,rlmin,rlmax,fC,OC,gtype= ''):
   Usage:
     :Ag,Ac,Nlg,Nlc = pytempura.norm_lens.qall(QDO,lmax,rlmin,rlmax,fC,OC,gtype):
   """
-  return _libtempura.norm_lens.qall(QDO,lmax,rlmin,rlmax,fC,OC,gtype)
+    if rlmaxtt: return _libtempura.norm_lens.qall(QDO,lmax,rlmin,rlmax,rlmaxtt,fC,OC,gtype)
+    else: return _libtempura.norm_lens.qall(QDO,lmax,rlmin,rlmax,rlmax,fC,OC,gtype)
 
 def qeb_iter(lmax,elmax,rlmin,rlmax,dlmin,dlmax,CE,OCE,OCB,Cpp,iter= 1,conv= 1e-6):
   """

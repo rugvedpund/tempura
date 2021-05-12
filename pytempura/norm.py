@@ -99,7 +99,7 @@ def get_norms(estimators, response_cls, total_cls, lmin, lmax, lmax_tt=None,
         else:
             fC = np.asarray((ucl['TT'],ucl['EE'],ucl['BB'],ucl['TE']))
             OC = np.asarray((tcl['TT'],tcl['EE'],tcl['BB'],tcl['TE']))
-            Ag,Ac,Wg,Wc = norm_lens.qall([True,True,True,True,True,include_bb_mv],k_ellmax,lmin,lmax,fC,OC,gtype= '')
+            Ag,Ac,Wg,Wc = norm_lens.qall([True,True,True,True,True,include_bb_mv],k_ellmax,lmin,lmax,fC,OC,rlmaxtt=lmax_tt,gtype= '')
             res[_gk('MV')] = np.asarray((Ag[-1,:],Ac[-1,:]))
     if 'MVPOL' in ests:
         r_mvpol = r_ee * 0
