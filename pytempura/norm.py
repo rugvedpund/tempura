@@ -68,10 +68,16 @@ def get_norms(estimators, response_cls, total_cls, lmin, lmax, lmax_tt=None,
             r_eb = np.asarray(norm_lens.qeb(k_ellmax,lmin,lmax,ucl['EE'],tcl['EE'],tcl['BB'],gtype= ''))
         if ('EB' in ests): res[_gk('EB')] = r_eb
     if ('TE' in ests)  or (('MV' in ests) and no_corr):
-        r_te = np.asarray(norm_lens.qte(k_ellmax,lmin,lmax,ucl['TE'],tcl['TT'],tcl['EE'],gtype= ''))
+        if lmax_tt: 
+            r_te = np.asarray(norm_lens.qte(k_ellmax,lmin,lmax_tt,ucl['TE'],tcl['TT'],tcl['EE'],gtype= ''))
+        else:
+            r_te = np.asarray(norm_lens.qte(k_ellmax,lmin,lmax,ucl['TE'],tcl['TT'],tcl['EE'],gtype= ''))
         if ('TE' in ests): res[_gk('TE')] = r_te
     if ('TB' in ests) or  (('MV' in ests) and no_corr):
-        r_tb = np.asarray(norm_lens.qtb(k_ellmax,lmin,lmax,ucl['TE'],tcl['TT'],tcl['BB'],gtype= ''))
+        if lmax_tt: 
+            r_tb = np.asarray(norm_lens.qtb(k_ellmax,lmin,lmax_tt,ucl['TE'],tcl['TT'],tcl['BB'],gtype= ''))
+        else:
+            r_tb = np.asarray(norm_lens.qtb(k_ellmax,lmin,lmax,ucl['TE'],tcl['TT'],tcl['BB'],gtype= ''))
         if ('TB' in ests): res[_gk('TB')] = r_tb
     if ('BB' in ests):
         r_bb = np.asarray(norm_lens.qbb(k_ellmax,lmin,lmax,ucl['BB'],tcl['BB'],gtype= ''))
